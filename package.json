@@ -1,15 +1,19 @@
 {
-  "name": "sellforge-api-painel",
-  "version": "1.0.0",
-  "description": "SellForge API - Painel Cliente | Aluguel + Geração Automática de Chaves",
-  "main": "Index.js",
+  "name": "sellforge-discord-finance-api",
+  "version": "1.0.3",
+  "description": "SellForge API + Painel Visual",
+  "main": "index.js",
   "dependencies": {
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "cors": "^2.8.5",
-    "uuid": "^9.0.1"
+    "uuid": "^10.0.0",
+    "mercadopago": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "node Index.js"
+    "start": "node index.js"
   },
   "author": "SellForge",
   "license": "UNLICENSED"
