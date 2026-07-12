@@ -1,6 +1,6 @@
 {
   "name": "sellforge-discord-finance-api",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "SellForge API + Painel Visual",
   "main": "index.js",
   "dependencies": {
