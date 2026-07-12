@@ -3,156 +3,207 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SellForge API - Painel Cliente</title>
+  <title>SellForge API - Painel</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script>
     tailwind.config = {
-      darkMode: true,
+      darkMode: false,
       theme: {
         extend: {
           colors: {
-            forge: {
-              base: '#050512',
-              card: '#0f0f26',
-              primary: '#4f46e5',
+            render: {
+              bg: '#ffffff',
+              sidebar: '#f8fafc',
+              border: '#e2e8f0',
+              primary: '#0070f3',
+              text: '#1e293b',
+              muted: '#64748b',
               success: '#10b981',
-              danger: '#ef4444',
-              text: '#e5e7ff'
+              danger: '#ef4444'
             }
           }
         }
       }
     }
   </script>
-  <style>*{-webkit-tap-highlight-color:transparent;}</style>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    .shadow-card { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06); }
+    .active-link { background-color: #eff6ff; color: #0070f3; border-right: 2px solid #0070f3; }
+  </style>
 </head>
-<body class="bg-forge-base text-forge-text min-h-screen font-sans">
-  <div class="max-w-md mx-auto p-5">
-    <header class="text-center mb-6">
-      <h1 class="text-2xl font-bold text-forge-primary">⚡ SellForge API</h1>
-      <p class="text-sm opacity-80">Painel Cliente Oficial</p>
-      <div id="statusSistema" class="mt-3 p-2 rounded bg-red-900/20 border text-sm">Verificando sistema...</div>
-    </header>
-
-    <!-- Escolher Plano e Alugar -->
-    <div class="bg-forge-card rounded-xl p-5 mb-5 border border-indigo-800/30">
-      <h2 class="text-lg font-semibold mb-4">📋 Alugar API</h2>
-      <select id="planoEscolhido" class="w-full bg-forge-base border border-indigo-700 p-2 rounded mb-3">
-        <option value="basico">Plano Básico - 500 req/dia</option>
-        <option value="profissional">Plano Profissional - 2.500 req/dia</option>
-        <option value="ultra">Plano Ultra - 10.000 req/dia</option>
-      </select>
-      <button onclick="alugarAPI()" id="btnAlugar" class="w-full bg-forge-primary py-2 rounded font-medium">Gerar Minha Chave</button>
-      <div id="resultadoAluguel" class="mt-4 text-sm break-all"></div>
-    </div>
-
-    <!-- Minha Chave e Status -->
-    <div class="bg-forge-card rounded-xl p-5 mb-5 border border-indigo-800/30">
-      <h2 class="text-lg font-semibold mb-3">🔑 Minha Chave de Acesso</h2>
-      <input type="text" id="minhaChave" placeholder="Sua chave aparecerá aqui" readonly class="w-full bg-forge-base border p-2 rounded mb-3">
-      <button onclick="verificarStatus()" class="w-full bg-blue-600 py-2 rounded">Verificar Status</button>
-      <div id="statusChave" class="mt-3 text-sm space-y-1"></div>
-    </div>
-
-    <!-- Ferramentas da API -->
-    <div id="areaFerramentas" class="hidden">
-      <div class="bg-forge-card rounded-xl p-5 mb-5 border border-indigo-800/30">
-        <h2 class="text-lg font-semibold mb-3">📐 Calcular Sensibilidade</h2>
-        <input type="number" id="dpi" placeholder="Ex: 449" class="w-full bg-forge-base border p-2 rounded mb-3">
-        <button onclick="calcular()" class="w-full bg-forge-primary py-2 rounded">Calcular</button>
-        <div id="resCalc" class="mt-3 text-sm"></div>
+<body class="bg-render-bg text-render-text min-h-screen">
+  <div class="flex flex-col md:flex-row h-screen overflow-hidden">
+    <!-- Menu Lateral -->
+    <aside id="sidebar" class="w-full md:w-64 bg-render-sidebar border-b md:border-b-0 md:border-r border-render-border flex-shrink-0">
+      <div class="p-5 border-b border-render-border">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-md bg-render-primary flex items-center justify-center">
+            <i class="fa fa-bolt text-white text-lg"></i>
+          </div>
+          <h2 class="text-lg font-semibold">SellForge API</h2>
+        </div>
+        <p class="text-xs text-render-muted mt-1">Painel de Controle</p>
       </div>
-      <div class="bg-forge-card rounded-xl p-5 border border-indigo-800/30">
-        <h2 class="text-lg font-semibold mb-3">🎲 Gerar Sensibilidade</h2>
-        <button onclick="gerar()" class="w-full bg-forge-primary py-2 rounded">Gerar Agora</button>
-        <div id="resGerar" class="mt-3 text-sm"></div>
+
+      <nav class="p-3 space-y-1 mt-2">
+        <button onclick="mostrarSecao('alugar')" id="link-alugar" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left hover:bg-blue-50 transition active-link">
+          <i class="fa fa-key w-5 text-center"></i> <span>Alugar API</span>
+        </button>
+        <button onclick="mostrarSecao('configurar')" id="link-configurar" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left hover:bg-blue-50 transition">
+          <i class="fa fa-credit-card w-5 text-center"></i> <span>Mercado Pago</span>
+        </button>
+        <button onclick="mostrarSecao('planos')" id="link-planos" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left hover:bg-blue-50 transition">
+          <i class="fa fa-list-alt w-5 text-center"></i> <span>Criar Planos</span>
+        </button>
+        <button onclick="mostrarSecao('ferramentas')" id="link-ferramentas" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-left hover:bg-blue-50 transition">
+          <i class="fa fa-wrench w-5 text-center"></i> <span>Ferramentas</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 overflow-y-auto p-5 md:p-8">
+      <div id="status" class="mb-6 p-3 rounded-lg bg-green-50 border border-green-200 flex items-center gap-3">
+        <i class="fa fa-check-circle text-render-success text-xl"></i>
+        <div>
+          <p class="font-medium">Sistema Conectado</p>
+          <p class="text-xs text-render-muted">API funcionando normalmente</p>
+        </div>
       </div>
-    </div>
+
+      <!-- Alugar API -->
+      <section id="secao-alugar" class="block">
+        <h2 class="text-xl font-bold mb-5">🔑 Alugar Minha API</h2>
+        <div class="bg-white rounded-lg shadow-card p-6 border border-render-border max-w-xl">
+          <label class="block text-sm font-medium mb-2">Período de Assinatura</label>
+          <select id="periodoAlugar" class="w-full p-3 border border-render-border rounded-md">
+            <option value="trial">Trial - 1 dia</option>
+            <option value="diario">Diário - 1 dia</option>
+            <option value="semanal">Semanal - 7 dias</option>
+            <option value="mensal" selected>Mensal - 30 dias</option>
+            <option value="anual">Anual - 365 dias</option>
+          </select>
+          <button onclick="alugarAPI()" class="mt-5 w-full bg-render-primary hover:bg-blue-600 text-white py-3 rounded-md">Gerar Chave Sistema</button>
+          <div id="resAlugar" class="mt-5 p-4 rounded-md bg-gray-50 border hidden break-all"></div>
+        </div>
+      </section>
+
+      <!-- Configurar Mercado Pago -->
+      <section id="secao-configurar" class="hidden">
+        <h2 class="text-xl font-bold mb-5">💳 Configurar Mercado Pago</h2>
+        <div class="bg-white rounded-lg shadow-card p-6 border border-render-border max-w-xl">
+          <label class="block text-sm font-medium mb-2">Chave de Acesso (Access Token)</label>
+          <input type="text" id="chaveMP" placeholder="APP_USR-..." class="w-full p-3 border border-render-border rounded-md mb-3">
+          <button onclick="configurarMP()" class="w-full bg-render-primary hover:bg-blue-600 text-white py-3 rounded-md">Salvar Configuração</button>
+          <div id="resMP" class="mt-5 p-4 rounded-md bg-gray-50 border hidden"></div>
+        </div>
+      </section>
+
+      <!-- Criar Planos -->
+      <section id="secao-planos" class="hidden">
+        <h2 class="text-xl font-bold mb-5">📋 Criar Planos de Aluguel</h2>
+        <div class="bg-white rounded-lg shadow-card p-6 border border-render-border max-w-xl">
+          <label class="block text-sm font-medium mb-2">Tipo de Plano</label>
+          <select id="tipoPlano" class="w-full p-3 border border-render-border rounded-md mb-3">
+            <option value="trial">Trial - 1 dia</option>
+            <option value="diario">Diário - 1 dia</option>
+            <option value="semanal">Semanal - 7 dias</option>
+            <option value="mensal" selected>Mensal - 30 dias</option>
+            <option value="anual">Anual - 365 dias</option>
+          </select>
+          <label class="block text-sm font-medium mb-2">Valor R$</label>
+          <input type="number" id="valorPlano" step="0.01" placeholder="25.00" class="w-full p-3 border border-render-border rounded-md mb-3">
+          <label class="block text-sm font-medium mb-2">Descrição</label>
+          <input type="text" id="descPlano" placeholder="Acesso completo ao bot" class="w-full p-3 border border-render-border rounded-md mb-3">
+          <button onclick="criarPlano()" class="w-full bg-render-primary hover:bg-blue-600 text-white py-3 rounded-md">Criar Plano</button>
+          <div id="resPlano" class="mt-5 p-4 rounded-md bg-gray-50 border hidden"></div>
+        </div>
+      </section>
+
+      <!-- Ferramentas -->
+      <section id="secao-ferramentas" class="hidden">
+        <h2 class="text-xl font-bold mb-5">🛠️ Gerar Dados</h2>
+        <div class="bg-white rounded-lg shadow-card p-6 border border-render-border max-w-xl">
+          <label class="block text-sm font-medium mb-2">Tipo de Dado</label>
+          <select id="tipoDado" class="w-full p-3 border border-render-border rounded-md mb-3">
+            <option value="aleatorio">Chave Aleatória</option>
+            <option value="numero">Número</option>
+            <option value="cpf">CPF Válido</option>
+          </select>
+          <button onclick="gerarDado()" class="w-full bg-render-primary hover:bg-blue-600 text-white py-3 rounded-md">Gerar</button>
+          <div id="resDado" class="mt-5 p-4 rounded-md bg-gray-50 border hidden break-all"></div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
-    const BASE = window.location.origin;
-    const NOME_OFICIAL = "SellForge API - Painel Cliente";
-    const statusEl = document.getElementById("statusSistema");
+    const BASE = window.location.origin + "/api/sellforge";
+    let CHAVE_SISTEMA = localStorage.getItem("chaveSistema") || "";
+    if(CHAVE_SISTEMA) document.getElementById("resAlugar").innerHTML = `Chave salva: ${CHAVE_SISTEMA}`;
 
-    async function verificarSistema() {
-      try {
-        const res = await fetch(`${BASE}/api/sellforge/gerar-sensibilidade?chave=teste`);
-        statusEl.className = "p-2 rounded bg-green-900/20 border border-green-700/40 text-green-300";
-        statusEl.textContent = "✅ Sistema Oficial Conectado";
-      } catch {
-        statusEl.className = "p-2 rounded bg-red-900/20 border border-red-700/40 text-forge-danger";
-        statusEl.textContent = "❌ Sistema Inválido ou Alterado";
-        document.body.innerHTML = `<div class="p-8 text-center text-red-400 text-xl">SOMENTE FUNCIONA: ${NOME_OFICIAL}</div>`;
-      }
+    function mostrarSecao(nome) {
+      document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+      document.getElementById(`secao-${nome}`).classList.remove("hidden");
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active-link"));
+      document.getElementById(`link-${nome}`).classList.add("active-link");
     }
 
     async function alugarAPI() {
-      const plano = document.getElementById("planoEscolhido").value;
-      const div = document.getElementById("resultadoAluguel");
-      div.innerHTML = "Processando...";
-      try {
-        const res = await fetch(`${BASE}/api/sellforge/alugar`, {
-          method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({plano})
-        });
-        const dados = await res.json();
-        if (dados.sucesso) {
-          div.innerHTML = `<p class="text-forge-success">✅ Chave Gerada!</p><p class="font-bold text-lg mt-2">${dados.dados.chave}</p>`;
-          document.getElementById("minhaChave").value = dados.dados.chave;
-          document.getElementById("areaFerramentas").classList.remove("hidden");
-        } else div.innerHTML = `<p class="text-forge-danger">${dados.aviso}</p>`;
-      } catch { div.innerHTML = `<p class="text-forge-danger">Erro no sistema</p>`; }
+      const res = await fetch(`${BASE}/alugar`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({periodo:document.getElementById("periodoAlugar").value})
+      });
+      const d = await res.json();
+      const div = document.getElementById("resAlugar");
+      div.classList.remove("hidden");
+      if(d.sucesso) {
+        CHAVE_SISTEMA = d.chaveSistema;
+        localStorage.setItem("chaveSistema", CHAVE_SISTEMA);
+        div.className = "mt-5 p-4 rounded-md bg-green-50 border border-green-200 break-all";
+        div.innerHTML = `✅ Chave: <strong>${d.chaveSistema}</strong><br>Válido até: ${new Date(d.validoAte).toLocaleDateString()}`;
+      } else div.innerHTML = `❌ ${d.aviso}`;
     }
 
-    async function verificarStatus() {
-      const chave = document.getElementById("minhaChave").value;
-      const div = document.getElementById("statusChave");
-      if (!chave) return div.innerHTML = "<p class='text-forge-danger'>Primeiro gere sua chave</p>";
-      div.innerHTML = "Verificando...";
-      try {
-        const res = await fetch(`${BASE}/api/sellforge/meu-acesso?chave=${chave}`);
-        const dados = await res.json();
-        if (dados.ativo) {
-          const d = dados.dados;
-          div.innerHTML = `
-            <p><strong>Plano:</strong> ${d.plano}</p>
-            <p><strong>Válido até:</strong> ${new Date(d.dataValidade).toLocaleDateString()}</p>
-            <p><strong>Usos:</strong> ${d.usosFeitos}/${d.limiteRequisicoes}</p>
-          `;
-        } else div.innerHTML = `<p class='text-forge-danger'>${dados.mensagem}</p>`;
-      } catch { div.innerHTML = "<p class='text-forge-danger'>Sistema inválido</p>"; }
+    async function configurarMP() {
+      const res = await fetch(`${BASE}/configurar-mp`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({chaveSistema:CHAVE_SISTEMA, accessToken:document.getElementById("chaveMP").value.trim()})
+      });
+      const d = await res.json();
+      const div = document.getElementById("resMP");
+      div.classList.remove("hidden");
+      div.className = d.sucesso ? "mt-5 p-4 rounded-md bg-green-50 border" : "mt-5 p-4 rounded-md bg-red-50 border";
+      div.innerHTML = d.sucesso ? "✅ Mercado Pago configurado com sucesso!" : `❌ ${d.aviso}`;
     }
 
-    async function calcular() {
-      const chave = document.getElementById("minhaChave").value;
-      const dpi = document.getElementById("dpi").value;
-      const div = document.getElementById("resCalc");
-      if (!chave || !dpi) return div.innerHTML = "<p class='text-forge-danger'>Preencha tudo</p>";
-      div.innerHTML = "Calculando...";
-      try {
-        const res = await fetch(`${BASE}/api/sellforge/calcular-sensibilidade`, {
-          method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({chave, dpi})
-        });
-        const dados = await res.json();
-        if (dados.sucesso) div.innerHTML = Object.entries(dados.configuracao).map(([c,v])=>`<p>${c.toUpperCase()}: <strong>${v}</strong></p>`).join("");
-        else div.innerHTML = `<p class='text-forge-danger'>${dados.aviso}</p>`;
-      } catch { div.innerHTML = "<p class='text-forge-danger'>Erro</p>"; }
+    async function criarPlano() {
+      const res = await fetch(`${BASE}/criar-plano`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          chaveSistema:CHAVE_SISTEMA,
+          tipo:document.getElementById("tipoPlano").value,
+          valor:document.getElementById("valorPlano").value,
+          desc:document.getElementById("descPlano").value
+        })
+      });
+      const d = await res.json();
+      const div = document.getElementById("resPlano");
+      div.classList.remove("hidden");
+      div.className = d.sucesso ? "mt-5 p-4 rounded-md bg-green-50 border" : "mt-5 p-4 rounded-md bg-red-50 border";
+      div.innerHTML = d.sucesso ? `✅ Plano criado! ID: <strong>${d.idPlano}</strong>` : `❌ ${d.aviso}`;
     }
 
-    async function gerar() {
-      const chave = document.getElementById("minhaChave").value;
-      const div = document.getElementById("resGerar");
-      if (!chave) return div.innerHTML = "<p class='text-forge-danger'>Gere sua chave primeiro</p>";
-      div.innerHTML = "Gerando...";
-      try {
-        const res = await fetch(`${BASE}/api/sellforge/gerar-sensibilidade?chave=${chave}`);
-        const dados = await res.json();
-        if (dados.sucesso) div.innerHTML = Object.entries(dados.configuracao).map(([c,v])=>`<p>${c.toUpperCase()}: <strong>${v}</strong></p>`).join("");
-        else div.innerHTML = `<p class='text-forge-danger'>${dados.aviso}</p>`;
-      } catch { div.innerHTML = "<p class='text-forge-danger'>Erro</p>"; }
+    async function gerarDado() {
+      const res = await fetch(`${BASE}/gerar-dado?chaveSistema=${CHAVE_SISTEMA}&tipo=${document.getElementById("tipoDado").value}`);
+      const d = await res.json();
+      const div = document.getElementById("resDado");
+      div.classList.remove("hidden");
+      div.className = "mt-5 p-4 rounded-md bg-blue-50 border";
+      div.innerHTML = d.sucesso ? `Dado: <strong>${d.dado}</strong>` : `❌ ${d.aviso}`;
     }
-
-    verificarSistema();
   </script>
 </body>
 </html>
