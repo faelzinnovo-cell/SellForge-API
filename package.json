@@ -1,0 +1,16 @@
+{
+  "name": "sellforge-api-painel",
+  "version": "1.0.0",
+  "description": "SellForge API - Painel Cliente | Aluguel + Geração Automática de Chaves",
+  "main": "Index.js",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1"
+  },
+  "scripts": {
+    "start": "node Index.js"
+  },
+  "author": "SellForge",
+  "license": "UNLICENSED"
+}
