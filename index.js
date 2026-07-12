@@ -2,20 +2,26 @@ const express = require('express');
 const cors = require('cors');
 const { v4: gerarUUID } = require('uuid');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
+const path = require('path'); // ✅ Adicionado
+
 const app = express();
 
+// ✅ Configuração OBRIGATÓRIA para abrir o index.html
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
-app.use(express.static('.')); // 🆕 Serve arquivos estáticos como index.html
+app.use(express.static(path.join(__dirname, '.'))); // ✅ Serve arquivos estáticos
 
+// 🔐 Proteção fixa — NÃO ALTERAR
 const ASSINATURA_OFICIAL = "SELLFORGE|v1|DISCORD|FINANCE|OFICIAL";
 const NOME_API = "SellForge API - Discord Finance";
 
+// 📂 Armazenamento
 const chavesSistema = new Map();
 const contasMP = new Map();
 const planos = new Map();
 const acessos = new Map();
 
+// 🛡️ Segurança
 function gerarIDBot(req) {
   const ip = req.headers['x-forwarded-for'] || req.ip;
   const agente = req.headers['user-agent'] || 'discord-bot';
@@ -30,6 +36,9 @@ function validarChave(chave, idBot) {
   return {ok:true, dados:d};
 }
 
+// ======================================
+// 🟢 Rotas da API
+// ======================================
 app.post('/api/sellforge/alugar', (req, res) => {
   try {
     const idBot = gerarIDBot(req);
@@ -152,6 +161,11 @@ app.get('/api/sellforge/gerar-dado', (req, res) => {
   } catch {
     res.json({sucesso:false});
   }
+});
+
+// ✅ Rota principal para abrir o painel
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 module.exports = app;
